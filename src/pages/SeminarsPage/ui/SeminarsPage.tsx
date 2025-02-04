@@ -1,16 +1,12 @@
-import { useGetSeminarsQuery } from "@/entities/seminars/api/seminarsApi";
-import { useEffect } from "react";
+import SeminarsList from "@/widgets/SeminarsList/ui/SeminarsList";
+import { Stack } from "@mui/material";
 
 const SeminarsPage = () => {
-  const { data } = useGetSeminarsQuery();
-
-  useEffect(() => {
-    if (data) {
-      console.log(data);
-    }
-  });
-
-  return <div>SeminarsPage</div>;
+  return (
+    <Stack>
+      <SeminarsList />
+    </Stack>
+  );
 };
 
 export default SeminarsPage;
