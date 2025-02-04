@@ -1,4 +1,4 @@
-export type Seminar = {
+export type SeminarDto = {
   id: string;
   title: string;
   description: string;
@@ -6,3 +6,5 @@ export type Seminar = {
   time: string;
   photo: string;
 };
+
+

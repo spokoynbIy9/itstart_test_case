@@ -6,12 +6,12 @@ import {
   Stack,
   Typography,
 } from "@mui/material";
-import { SeminarDto } from "../model/types/seminar";
+import { SeminarDto } from "../model/types/seminarDto";
 import { FC, ReactNode } from "react";
 
 type SeminarCardProps = {
   seminar: SeminarDto;
-  actions: ReactNode;
+  actions: ReactNode[];
 };
 
 export const SeminarCard: FC<SeminarCardProps> = (props) => {
@@ -27,7 +27,11 @@ export const SeminarCard: FC<SeminarCardProps> = (props) => {
           <Typography>{seminar.time}</Typography>
         </Stack>
       </CardContent>
-      <CardActions>{actions}</CardActions>
+      <CardActions
+        sx={{ flexDirection: "row", justifyContent: "space-between" }}
+      >
+        {actions}
+      </CardActions>
     </Card>
   );
 };
