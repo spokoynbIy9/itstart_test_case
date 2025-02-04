@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useDeleteSeminarsMutation } from "@/entities/seminar/api/seminarsApi";
 import ConfirmDeleteModal from "@/features/confirmDeleteModal/ui/ConfirmDeleteModal";
 import DeleteIcon from "@mui/icons-material/Delete";
@@ -12,18 +13,23 @@ const DeleteSeminarButton: FC<DeleteSeminarButtonProps> = (props) => {
   const { seminarId } = props;
 
   const [open, setOpen] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [deleteSeminar] = useDeleteSeminarsMutation();
 
   const toggleOpen = () => {
     setOpen((prevState) => !prevState);
+    setErrorMessage(null);
   };
 
   const handleSubmit = async (seminarId: string) => {
     try {
-      await deleteSeminar(seminarId);
+      await deleteSeminar(seminarId).unwrap();
       toggleOpen();
     } catch (error) {
-      console.error(error);
+      const errMsg =
+        (error as any)?.data?.message ||
+        "Не удалось удалить семинар. Попробуйте ещё раз.";
+      setErrorMessage(errMsg);
     }
   };
 
@@ -41,6 +47,7 @@ const DeleteSeminarButton: FC<DeleteSeminarButtonProps> = (props) => {
         onClose={toggleOpen}
         onSubmit={handleSubmit}
         seminarId={seminarId}
+        error={errorMessage}
       />
     </>
   );

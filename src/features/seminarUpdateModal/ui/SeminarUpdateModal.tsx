@@ -1,12 +1,16 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import {
+  Alert,
   Button,
+  CardMedia,
   Modal,
   Paper,
   Stack,
   TextField,
   Typography,
 } from "@mui/material";
-import { FC } from "react";
+
+import { FC, useState } from "react";
 import classes from "./Modal.module.scss";
 import {
   UpdateSeminarFormSchema,
@@ -18,6 +22,7 @@ import { Seminar } from "@/entities/seminar/model/types/seminar";
 import { DatePicker, TimePicker } from "@mui/x-date-pickers";
 import dayjs from "dayjs";
 import { useUpdateSeminarMutation } from "@/entities/seminar/api/seminarsApi";
+import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 
 type SeminarUpdateModalProps = {
   open: boolean;
@@ -27,6 +32,9 @@ type SeminarUpdateModalProps = {
 
 export const SeminarUpdateModal: FC<SeminarUpdateModalProps> = (props) => {
   const { open, onClose, seminar } = props;
+
+  const [preview, setPreview] = useState<string | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const [updateSeminar, { isLoading }] = useUpdateSeminarMutation();
 
@@ -47,14 +55,19 @@ export const SeminarUpdateModal: FC<SeminarUpdateModalProps> = (props) => {
   });
 
   const onSubmitHandler = async (data: UpdateSeminarFormSchema) => {
+    setErrorMessage(null);
     try {
       const newSeminar = {
         id: seminar.id,
         ...data,
       };
-      await updateSeminar(newSeminar);
+      await updateSeminar(newSeminar).unwrap();
+      onClose();
     } catch (error) {
-      console.error(error);
+      const errMsg =
+        (error as any)?.data?.message ||
+        "Не удалось обновить семинар. Попробуйте ещё раз.";
+      setErrorMessage(errMsg);
     }
   };
 
@@ -126,24 +139,58 @@ export const SeminarUpdateModal: FC<SeminarUpdateModalProps> = (props) => {
                   />
                 )}
               />
-              <Controller
-                name="photo"
-                control={control}
-                render={({ field }) => (
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={(e) => {
-                      const file = e.target.files?.[0];
-                      if (file) {
-                        const fileURL = URL.createObjectURL(file);
-                        field.onChange(fileURL);
-                      }
-                    }}
-                  />
-                )}
-              />
+              <Stack
+                flex={1}
+                flexDirection="row"
+                alignItems="center"
+                justifyContent="center"
+                gap={5}
+              >
+                <Controller
+                  name="photo"
+                  control={control}
+                  render={({ field }) => (
+                    <label htmlFor="upload-photo">
+                      <input
+                        id="upload-photo"
+                        type="file"
+                        accept="image/*"
+                        style={{ display: "none" }}
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) {
+                            const fileURL = URL.createObjectURL(file);
+                            field.onChange(fileURL);
+                            setPreview(fileURL);
+                          }
+                        }}
+                      />
+                      <Button
+                        component="span"
+                        variant="contained"
+                        startIcon={<CloudUploadIcon />}
+                        sx={{ textAlign: "center" }}
+                      >
+                        Загрузить фото
+                      </Button>
+                    </label>
+                  )}
+                />
+                <CardMedia component="img" image={preview || ""} height={200} />
+              </Stack>
             </Stack>
+            {errorMessage && (
+              <Alert
+                severity="error"
+                sx={{
+                  borderRadius: 4,
+                  alignSelf: "center",
+                  justifyContent: "center",
+                }}
+              >
+                {errorMessage}
+              </Alert>
+            )}
             <Button
               disabled={isLoading}
               type="submit"

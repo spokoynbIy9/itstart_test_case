@@ -16,6 +16,7 @@ type SeminarCardProps = {
 
 export const SeminarCard: FC<SeminarCardProps> = (props) => {
   const { seminar, actions } = props;
+
   return (
     <Card>
       <CardMedia component="img" image={seminar.photo} height={200} />
